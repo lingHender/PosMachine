@@ -1,6 +1,5 @@
 package com.thoughtworks.pos.parser;
 
-import com.thoughtworks.pos.ShopData;
 import com.thoughtworks.pos.compute.BasicData;
 import com.thoughtworks.pos.domain.BillItem;
 import com.thoughtworks.pos.domain.Item;
@@ -12,9 +11,10 @@ import java.util.regex.Pattern;
 import static java.util.regex.Pattern.compile;
 
 public class BillItemParser extends Parser<BillItem> {
+    public List<BillItem> billItems;
     private static final Pattern PATTERN = compile("^(\\w+)-(\\d+)$");
 
-    public List<String> transformString(List<String> billItems){
+    public List<BillItem> transformBillItems(List<String> billItems){
         List<String> correctBillItems = new ArrayList<String>();
         for(String line : billItems){
             if(line.indexOf("-") == -1){
@@ -22,7 +22,7 @@ public class BillItemParser extends Parser<BillItem> {
             }
             correctBillItems.add(line);
         }
-        return correctBillItems;
+        return parse(correctBillItems);
     }
 
     @Override
@@ -32,7 +32,7 @@ public class BillItemParser extends Parser<BillItem> {
         int quantity = Integer.parseInt(splitLine[1]);
         for(Item item : BasicData.items){
             if(barcode.equals(item.getBarcode())) {
-                return new BillItem(barcode,quantity,item.getPrice());
+                return new BillItem(barcode,quantity,item.getPrice(),item.getPrice()*quantity);
             }
         }
         throw new IllegalArgumentException("can't find in all items");
